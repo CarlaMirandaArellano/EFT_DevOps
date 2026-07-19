@@ -34,14 +34,15 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 withCredentials([
-                    string(credentialsId: 'db-username', variable: 'DB_USER'),
-                    string(credentialsId: 'db-password', variable: 'DB_PASS')
+                    usernamePassword(credentialsId: 'db-credentials', usernameVariable: 'DB_USER', passwordVariable: 'DB_PASS'),
+                    string(credentialsId: 'db-url-eft', variable: 'DB_URL')
                 ]) {
                     sh '''
                         docker stop contenedor_usuarios || true
                         docker rm contenedor_usuarios || true
                         docker run -d -p 9090:8080 \
                           --name contenedor_usuarios \
+                          -e SPRING_DATASOURCE_URL=$DB_URL \
                           -e SPRING_DATASOURCE_USERNAME=$DB_USER \
                           -e SPRING_DATASOURCE_PASSWORD=$DB_PASS \
                           imagen_usuarios
